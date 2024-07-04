@@ -33,9 +33,8 @@ export class UKLayoutVertical extends UKLayout {
 
         let layoutCount = 0;
         let nextTop = uk.getContentTop(content) - this.paddingTop;
-        let [startIndex, sign] = this.getIteratorAugs(count);
 
-        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
+        for (let index = 0, times = 0; times < count; ++times, index++) {
             const curTop = nextTop;
             const side = this.sizeAtIndex(index);
             const curBottom = curTop - side;
@@ -77,11 +76,10 @@ export class UKLayoutVertical extends UKLayout {
     }
 
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
         let top = 0 + this.paddingTop;
         let toIndex = eleIndex;
 
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+        for (let index = 0, times = 0; times < eleCount; ++times, index++) {
             if (index == toIndex) {
                 break;
             }
@@ -107,8 +105,7 @@ export class UKLayoutVertical extends UKLayout {
 
         let showedIndexs = showedCells.map(c => c.index);
         let nextTop = uk.getContentTop(content) - this.paddingTop;
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
+        for (let index = 0, times = 0; times < eleCount; ++times, index++) {
             const curTop = nextTop;
             const side = this.sizeAtIndex(index);
             const curBottom = curTop - side;
@@ -132,12 +129,4 @@ export class UKLayoutVertical extends UKLayout {
             }
         }
     }
-
-    private getIteratorAugs(count: number) {
-        let startIndex = 0;
-        let sign = 1;
-
-        return [startIndex, sign];
-    }
-
 }

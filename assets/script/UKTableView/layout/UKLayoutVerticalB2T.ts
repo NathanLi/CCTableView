@@ -56,8 +56,6 @@ export class UKLayoutVerticalB2T extends UKLayout {
     }
 
     setupContentSize(scroll: cc.ScrollView, count: number, fixOffset: boolean = false): void {
-        const originOffset = scroll.getScrollOffset();
-        const originSide = scroll.content.height;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
 
@@ -65,6 +63,9 @@ export class UKLayoutVerticalB2T extends UKLayout {
             return;
         }
 
+        const originOffset = scroll.getScrollOffset();
+        const originSide = scroll.content.height;
+        
         if (originOffset.y < 0) {
             // 原来只显示了最底部的几个
             scroll.scrollToPercentVertical(0);
