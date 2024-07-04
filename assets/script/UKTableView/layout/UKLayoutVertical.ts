@@ -1,5 +1,5 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
-import { uk } from "../util/uk";
+import { IVisiableRect, uk } from "../util/uk";
 import { UKLayout } from "./UKLayout";
 
 export class UKLayoutVertical extends UKLayout {
@@ -14,7 +14,7 @@ export class UKLayoutVertical extends UKLayout {
         this._lastLayoutOffset = visiable.top;
         
         const cells = this.getChildCells(content);
-        this.doCycleCell(cells, visiable.top, visiable.bottom);
+        this.doCycleCell(cells, visiable);
         this.doFillCell(scroll, cells, count);
     }
 
@@ -94,13 +94,9 @@ export class UKLayoutVertical extends UKLayout {
         return cc.v2(scroll.getScrollOffset().x, y);
     }
 
-    private doCycleCell(cells: UKTableViewCell[], visiableTop: number, visiableBottom: number) {
+    private doCycleCell(cells: UKTableViewCell[], visiableRect: IVisiableRect) {
         cells.forEach(cell => {
-            const child = cell.node;
-            const bottom = uk.getBottom(child);
-            const top = bottom + child.height;
-            const isOut = (top < (visiableBottom - 1)) || (bottom > (visiableTop + 1));
-            if (isOut) {
+            if (uk.isOut(cell.node, visiableRect)) {
                 this.recyleCell(cell);
             }
         });
