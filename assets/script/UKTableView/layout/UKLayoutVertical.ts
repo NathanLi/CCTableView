@@ -4,15 +4,14 @@ import { UKLayout } from "./UKLayout";
 
 export class UKLayoutVertical extends UKLayout {
     doLayout(scroll: cc.ScrollView, count: number): void {
-        const content = scroll.content;
-        
         const visiable = uk.getVisiable(scroll);
-        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiable.top - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        if (!IVisiableRect.isMoved(this._lastLayoutRect, visiable, Math.max(this.minDiff, 0.1))) {
             return;
         }
-        
-        this._lastLayoutOffset = visiable.top;
-        
+
+        this._lastLayoutRect = visiable;
+
+        const content = scroll.content;
         const cells = this.getChildCells(content);
         this.doCycleCell(cells, visiable);
         this.doFillCell(scroll, cells, count);
@@ -23,7 +22,7 @@ export class UKLayoutVertical extends UKLayout {
             return;
         }
 
-        this._lastLayoutOffset = undefined;
+        this._lastLayoutRect = undefined;
 
         const content = scroll.content;
         const cells = this.getChildCells(content);

@@ -1,8 +1,9 @@
 import UKTableViewCell from "../cell/UKTableViewCell";
+import { IVisiableRect } from "../util/uk";
 import { IUKLayout } from "./IUKLayout";
 
 export class UKLayout implements IUKLayout {
-    protected _lastLayoutOffset: number = undefined;
+    protected _lastLayoutRect?: IVisiableRect;
 
     paddingTop: number = 0;
     paddingBottom: number = 0;

@@ -5,6 +5,19 @@ export interface IVisiableRect {
     right: number;
 }
 
+export class IVisiableRect {
+    static isMoved(lastVisiable: IVisiableRect, curVisiable: IVisiableRect, fixed = 0.1): boolean {
+        if (!lastVisiable || !curVisiable) {
+            return true;
+        }
+
+        return (Math.abs(lastVisiable.top - curVisiable.top) > fixed)
+            || (Math.abs(lastVisiable.bottom - curVisiable.bottom) > fixed)
+            || (Math.abs(lastVisiable.left - curVisiable.left) > fixed)
+            || (Math.abs(lastVisiable.right - curVisiable.right) > fixed);
+    }
+}
+
 export class uk {
     static setYByBottom(node: cc.Node, bottom: number, height?: number): void {
         if (height === undefined) {
@@ -120,4 +133,5 @@ export class uk {
             right: visiableRight
         };
     }
+
 }
