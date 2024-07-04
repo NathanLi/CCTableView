@@ -6,15 +6,15 @@ export class UKLayoutVertical extends UKLayout {
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
         
-        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
-        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableTop - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        const visiable = uk.getVisiable(scroll);
+        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiable.top - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
         
-        this._lastLayoutOffset = visiableTop;
+        this._lastLayoutOffset = visiable.top;
         
         const cells = this.getChildCells(content);
-        this.doCycleCell(cells, visiableTop, visiableBottom);
+        this.doCycleCell(cells, visiable.top, visiable.bottom);
         this.doFillCell(scroll, cells, count);
     }
 
@@ -107,7 +107,7 @@ export class UKLayoutVertical extends UKLayout {
     }
 
     private doFillCell(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
-        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
+        const visiableRect = uk.getVisiable(scroll);
         const content = scroll.content;
 
         let showedIndexs = showedCells.map(c => c.index);
@@ -123,7 +123,7 @@ export class UKLayoutVertical extends UKLayout {
                 continue;
             }
 
-            const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
+            const isOut = (curBottom >= visiableRect.top) || (curTop <= visiableRect.bottom);
             const visiable = !isOut;
             if (visiable) {
                 const cell = this.insertOneCellAt(content, index);
@@ -132,7 +132,7 @@ export class UKLayoutVertical extends UKLayout {
                 uk.setYByTop(node, curTop, side);
             }
 
-            if (nextTop < visiableBottom) {
+            if (nextTop < visiableRect.bottom) {
                 break; 
             }
         }

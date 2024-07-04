@@ -7,15 +7,15 @@ export class UKLayoutVerticalB2T extends UKLayout {
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
         
-        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
-        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableTop - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        const visiableRect = uk.getVisiable(scroll);
+        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableRect.top - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
         
-        this._lastLayoutOffset = visiableTop;
+        this._lastLayoutOffset = visiableRect.top;
         
         const cells = this.getChildCells(content);
-        this.doCycleCell(cells, visiableTop, visiableBottom);
+        this.doCycleCell(cells, visiableRect.top, visiableRect.bottom);
         this.doFillCell(scroll, cells, count);
     }
 
@@ -135,7 +135,7 @@ export class UKLayoutVerticalB2T extends UKLayout {
     }
 
     private doFillCell(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
-        const [visiableTop, visiableBottom] = uk.getVisiableVertical(scroll);
+        const visiableRect = uk.getVisiable(scroll);
         const content = scroll.content;
 
         let showedIndexs = showedCells.map(c => c.index);
@@ -151,7 +151,7 @@ export class UKLayoutVerticalB2T extends UKLayout {
                 continue;
             }
 
-            const isOut = (curBottom >= visiableTop) || (curTop <= visiableBottom);
+            const isOut = (curBottom >= visiableRect.top) || (curTop <= visiableRect.bottom);
             const visiable = !isOut;
             if (visiable) {
                 const cell = this.insertOneCellAt(content, index);
@@ -160,7 +160,7 @@ export class UKLayoutVerticalB2T extends UKLayout {
                 uk.setYByBottom(node, curBottom, side);
             }
 
-            if (nextBottom > visiableTop) {
+            if (nextBottom > visiableRect.top) {
                 break; 
             }
         }

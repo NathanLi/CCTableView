@@ -13,15 +13,15 @@ export class UKLayoutHorizontal extends UKLayout {
     doLayout(scroll: cc.ScrollView, count: number): void {
         const content = scroll.content;
 
-        const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
-        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableLeft - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
+        const visiableRect = uk.getVisiable(scroll);
+        if ((this._lastLayoutOffset !== undefined) && Math.abs(visiableRect.left - this._lastLayoutOffset) < Math.max(this.minDiff, 0.1)) {
             return;
         }
 
-        this._lastLayoutOffset = visiableLeft;
+        this._lastLayoutOffset = visiableRect.left;
 
         const cells = this.getChildCells(content);
-        this.doCycleCell(cells, visiableLeft, visiableRight);
+        this.doCycleCell(cells, visiableRect.left, visiableRect.right);
 
         if (this.isLeftToRight) {
             this.doFillCellLeft(scroll, cells, count);
@@ -145,7 +145,7 @@ export class UKLayoutHorizontal extends UKLayout {
     }
 
     private doFillCell(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
-        const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
+        const visiableRect = uk.getVisiable(scroll);
         const content = scroll.content;
 
         let showedIndexs = showedCells.map(c => c.index);
@@ -162,7 +162,7 @@ export class UKLayoutHorizontal extends UKLayout {
                 continue;
             }
 
-            const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
+            const isOut = (curLeft >= visiableRect.right) || (curRight <= visiableRect.left);
             const visiable = !isOut;
             if (visiable) { 
                 const cell = this.insertOneCellAt(content, index);
@@ -171,14 +171,14 @@ export class UKLayoutHorizontal extends UKLayout {
                 uk.setXByRight(node, curRight, side);
             }
 
-            if (nextRight < visiableLeft) {
+            if (nextRight < visiableRect.left) {
                 break; 
             }
         }
     }
 
     private doFillCellLeft(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
-        const [visiableLeft, visiableRight] = uk.getVisiableHorizontal(scroll);
+        const visiableRect = uk.getVisiable(scroll);
         const content = scroll.content;
 
         let showedIndexs = showedCells.map(c => c.index);
@@ -195,7 +195,7 @@ export class UKLayoutHorizontal extends UKLayout {
                 continue;
             }
 
-            const isOut = (curLeft >= visiableRight) || (curRight <= visiableLeft);
+            const isOut = (curLeft >= visiableRect.right) || (curRight <= visiableRect.left);
             const visiable = !isOut;
             if (visiable) { 
                 const cell = this.insertOneCellAt(content, index);
@@ -204,7 +204,7 @@ export class UKLayoutHorizontal extends UKLayout {
                 uk.setXByLeft(node, curLeft, side);
             }
 
-            if (nextLeft > visiableRight) {
+            if (nextLeft > visiableRect.right) {
                 break; 
             }
         }

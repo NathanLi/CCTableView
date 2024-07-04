@@ -1,3 +1,10 @@
+interface IVisiableRect {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+}
+
 export class uk {
     static setYByBottom(node: cc.Node, bottom: number, height?: number): void {
         if (height === undefined) {
@@ -56,13 +63,11 @@ export class uk {
     }
 
     static getContentTop(node: cc.Node): number {
-        const height = node.height;
-        return (1 - node.anchorY) * height;
+        return (1 - node.anchorY) * node.height;
     }
 
     static getContentBottom(node: cc.Node): number {
-        const height = node.height;
-        return -1 * node.anchorY * height;
+        return -1 * node.anchorY * node.height;
     }
 
     static getContentLeft(node: cc.Node): number {
@@ -73,27 +78,24 @@ export class uk {
         return (1 - node.anchorX) * node.width;
     }
 
-    static getVisiableVertical(scroll: cc.ScrollView): [number, number] {
-        const content = scroll.content;
+    static getVisiable(scollView: cc.ScrollView): IVisiableRect {
+        const content = scollView.content;
         const top = this.getContentTop(content);
-        const scrollHeight = scroll.node.height;
-
-        const offset = scroll.getScrollOffset();
-        const visiableTop = Math.min(top - offset.y, top);
-        const visiableBottom = visiableTop - scrollHeight;
-        
-        return [visiableTop, visiableBottom];
-    }
-
-    static getVisiableHorizontal(scroll: cc.ScrollView): [number, number] {
-        const content = scroll.content;
+        const bottom = this.getContentBottom(content);
         const left = this.getContentLeft(content);
-        const scrollWidth = scroll.node.width;
+        const right = this.getContentRight(content);
 
-        const offset = scroll.getScrollOffset();
+        const offset = scollView.getScrollOffset();
+        const visiableTop = Math.min(top - offset.y, top);
+        const visiableBottom = Math.max(bottom - offset.y, bottom);
         const visiableLeft = Math.max(left - offset.x, left);
-        const visiableRight = visiableLeft + scrollWidth;
+        const visiableRight = Math.min(right - offset.x, right);
 
-        return [visiableLeft, visiableRight];
+        return {
+            top: visiableTop,
+            bottom: visiableBottom,
+            left: visiableLeft,
+            right: visiableRight
+        };
     }
 }
