@@ -27,11 +27,11 @@ export class UKLayoutVerticalB2T extends UKLayout {
 
         const content = scroll.content;
         const cells = this.getChildCells(content);
+        const cellCount = cells.length;
         
         const mapNodes: {[index: number]: cc.Node} = {};
         cells.forEach(cell => mapNodes[cell.index] = cell.node);
-
-        const length = cells.length;
+        
         let layoutCount = 0;
         let nextBottom = this.paddingBottom + uk.getContentBottom(content);
 
@@ -49,7 +49,7 @@ export class UKLayoutVerticalB2T extends UKLayout {
 
             uk.setYByBottom(node, curBottom, side);
 
-            if ((++layoutCount) == length) {
+            if ((++layoutCount) == cellCount) {
                 break;
             }
         }

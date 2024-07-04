@@ -26,11 +26,11 @@ export class UKLayoutVertical extends UKLayout {
 
         const content = scroll.content;
         const cells = this.getChildCells(content);
+        const cellCount = cells.length;
         
         const mapNodes: {[index: number]: cc.Node} = {};
         cells.forEach(cell => mapNodes[cell.index] = cell.node);
 
-        const length = cells.length;
         let layoutCount = 0;
         let nextTop = uk.getContentTop(content) - this.paddingTop;
         let [startIndex, sign] = this.getIteratorAugs(count);
@@ -49,7 +49,7 @@ export class UKLayoutVertical extends UKLayout {
 
             uk.setYByTop(node, curTop, side);
 
-            if ((++layoutCount) == length) {
+            if ((++layoutCount) == cellCount) {
                 break;
             }
         }
