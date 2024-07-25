@@ -2,8 +2,50 @@ import UKTableViewCell from "../cell/UKTableViewCell";
 import { IVisiableRect, uk } from "../util/uk";
 import { UKLayout } from "./UKLayout";
 
+interface ILayoutPositionCal {
+    getStartPos(content: cc.Node): number;
+    getNextPos(curPos: number, side: number): number;
+    setPos(node: cc.Node, pos: number, side: number): void;
+
+    getStartOffset(): number;
+    getNextOffset(curOffset: number, index: number, side: number): number;
+    getOffset(content: cc.Node, curOffset: number): number;
+
+    /** 是否超出可视边界 */
+    isOver(curPos: number, visiableRect: IVisiableRect): boolean;
+}
+
+
 export class UKLayoutHorizontal extends UKLayout {
+    private _positionCalL2R: ILayoutPositionCal = {
+        getStartPos: (content) => uk.getContentLeft(content) + this.paddingLeft,
+        getNextPos: (curPos, side) => curPos + side + this.spaceX,
+        setPos: (node, pos, side) => uk.setXByLeft(node, pos, side),
+
+        getStartOffset: () => this.paddingLeft,
+        getNextOffset: (curOffset, index, side) => curOffset + side + this.spaceX,
+        getOffset: (_, curOffset) => curOffset,
+
+        isOver: (curPos, visiableRect) => curPos > visiableRect.right,
+    };
+
+    private _positionCalR2L: ILayoutPositionCal = {
+        getStartPos: (content) => uk.getContentRight(content) - this.paddingRight,
+        getNextPos: (curPos, side) => curPos - side - this.spaceX,
+        setPos: (node, pos, side) => uk.setXByRight(node, pos, side),
+
+        getStartOffset: () => this.paddingRight,
+        getNextOffset: (curOffset, index, side) => curOffset + side + (index > 0 ? this.spaceX : 0),
+        getOffset: (content, curOffset) => content.width - curOffset,
+
+        isOver: (curPos, visiableRect) => curPos < visiableRect.left,
+    };
+
     protected isLeftToRight = true;
+
+    private get posCal() {
+        return  (this.isLeftToRight) ? this._positionCalL2R : this._positionCalR2L;
+    }
 
     constructor(isLeftToRight: boolean) {
         super();
@@ -21,12 +63,7 @@ export class UKLayoutHorizontal extends UKLayout {
         const content = scroll.content;
         const cells = this.getChildCells(content);
         this.doCycleCell(cells, visiableRect);
-
-        if (this.isLeftToRight) {
-            this.doFillCellLeft(scroll, cells, count);
-        } else {
-            this.doFillCell(scroll, cells, count);
-        }
+        this.doFillCell(scroll, cells, count);
     }
 
     fixPositions(scroll: cc.ScrollView, count: number): void {
@@ -38,64 +75,64 @@ export class UKLayoutHorizontal extends UKLayout {
 
         const content = scroll.content;
         const cells = this.getChildCells(content);
+        const cellCount = cells.length;
         
         const mapNodes: {[index: number]: cc.Node} = {};
         cells.forEach(cell => mapNodes[cell.index] = cell.node);
 
-        const length = cells.length;
+        const posCal = this.posCal;
+
         let layoutCount = 0;
-        let [startIndex, sign] = this.getIteratorAugs(count);
-        let nextRight = uk.getContentRight(content) - this.paddingRight;
-        for (let index = startIndex, times = 0; times < count; ++times, index += sign) {
-            const right = nextRight;
+        let nextPos = posCal.getStartPos(content);
+        for (let index = 0, times = 0; times < count; ++times, index++) {
+            const curPos = nextPos;
             const side = this.sizeAtIndex(index);
+            
+            nextPos = this.posCal.getNextPos(curPos, side);
+            
             const node = mapNodes[index];
-
-            nextRight = right - side - this.spaceX;
-
             if (!node) {
                 continue;
             }
 
-            uk.setXByRight(node, right, side);
+            this.posCal.setPos(node, curPos, side);
 
-            layoutCount++;
-            if (layoutCount == length) {
+            if ((++layoutCount) == cellCount) {
                 break;
             }
         }
     }
 
     setupContentSize(scroll: cc.ScrollView, count: number, fixOffset: boolean): void {
-        const originOffset = scroll.getScrollOffset();
-        const originSide = scroll.content.width;
+        // const originOffset = scroll.getScrollOffset();
+        // const originSide = scroll.content.width;
         const side = this.calContentSize(count);
         this.setSide(scroll.content, side);
 
-        if (!fixOffset) {
-            return;
-        }
+        // if (!fixOffset) {
+        //     return;
+        // }
 
-        if (this.isLeftToRight) {
-            // left to right 直接是原 offset
-            scroll.scrollToOffset(originOffset);
-            return;
-        }
+        // if (this.isLeftToRight) {
+        //     // left to right 直接是原 offset
+        //     scroll.scrollToOffset(originOffset);
+        //     return;
+        // }
 
-        if (originOffset.x < 0) {
-            scroll.scrollToPercentHorizontal(0);
-            return;
-        }
+        // if (originOffset.x < 0) {
+        //     scroll.scrollToPercentHorizontal(0);
+        //     return;
+        // }
 
-        const scrollWidth = scroll.node.width;
-        if (side < scrollWidth) {
-            scroll.scrollToPercentHorizontal(0);
-            return;
-        }
+        // const scrollWidth = scroll.node.width;
+        // if (side < scrollWidth) {
+        //     scroll.scrollToPercentHorizontal(0);
+        //     return;
+        // }
 
-        const diff = side - Math.max(scrollWidth, originSide);
-        const offset = cc.v2(originOffset.x + diff, originOffset.y);
-        scroll.scrollToOffset(offset);
+        // const diff = side - Math.max(scrollWidth, originSide);
+        // const offset = cc.v2(originOffset.x + diff, originOffset.y);
+        // scroll.scrollToOffset(offset);
     }
 
     getPaddingCount() {
@@ -115,20 +152,20 @@ export class UKLayoutHorizontal extends UKLayout {
     }
 
     getOffsetOfIndex(scroll: cc.ScrollView, eleIndex: number, eleCount: number) {
-        let [startIndex, sign] = this.isLeftToRight ? [0, 1] : [eleCount - 1, -1];
-        let left = 0 + this.paddingLeft;
-        let toIndex = eleIndex;
+        const cal = this.posCal;
 
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
-            if (index == toIndex) {
+        let offset = cal.getStartOffset();
+
+        for (let index = 0; index < eleCount; index++) {
+            if (index == eleIndex) {
                 break;
             }
 
-            left = left + this.sizeAtIndex(index) + this.spaceX;
+            offset = cal.getNextOffset(offset, index, this.sizeAtIndex(index));
         }
 
-        let x = left;
-        return cc.v2(x, scroll.getScrollOffset().y);
+        offset = cal.getOffset(scroll.content, offset);
+        return cc.v2(offset, scroll.getScrollOffset().y);
     }
 
     private doCycleCell(cells: UKTableViewCell[], visiable: IVisiableRect) {
@@ -143,76 +180,35 @@ export class UKLayoutHorizontal extends UKLayout {
         const visiableRect = uk.getVisiable(scroll);
         const content = scroll.content;
 
-        let showedIndexs = showedCells.map(c => c.index);
-        let nextRight = uk.getContentRight(content) - this.paddingRight;
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
-            const curRight = nextRight;
-            const side = this.sizeAtIndex(index);
-            const curLeft = curRight - side;
+        const cal = this.posCal;
 
-            nextRight = curLeft - this.spaceX;
+        let showedIndexs = showedCells.map(c => c.index);
+        let nextPos = cal.getStartPos(content);
+        for (let index = 0, times = 0; times < eleCount; ++times, index++) {
+            const curPos = nextPos;
+            const side = this.sizeAtIndex(index);
+
+            nextPos = cal.getNextPos(curPos, side);
 
             if (showedIndexs.indexOf(index) >= 0) {
                 continue;
             }
 
-            const isOut = (curLeft >= visiableRect.right) || (curRight <= visiableRect.left);
+            const left = Math.min(curPos, nextPos);
+            const right = Math.max(curPos, nextPos);
+            const isOut = (left > visiableRect.right) || (right < visiableRect.left);
             const visiable = !isOut;
-            if (visiable) { 
+            if (visiable) {
                 const cell = this.insertOneCellAt(content, index);
                 const node = cell.node;
 
-                uk.setXByRight(node, curRight, side);
+                cal.setPos(node, curPos, side);
             }
 
-            if (nextRight < visiableRect.left) {
+            if (cal.isOver(nextPos, visiableRect)) {
                 break; 
             }
         }
     }
 
-    private doFillCellLeft(scroll: cc.ScrollView, showedCells: UKTableViewCell[], eleCount: number) {
-        const visiableRect = uk.getVisiable(scroll);
-        const content = scroll.content;
-
-        let showedIndexs = showedCells.map(c => c.index);
-        let nextLeft = uk.getContentLeft(content) + this.paddingLeft;
-        let [startIndex, sign] = this.getIteratorAugs(eleCount);
-        for (let index = startIndex, times = 0; times < eleCount; ++times, index += sign) {
-            const curLeft = nextLeft;
-            const side = this.sizeAtIndex(index);
-            const curRight = curLeft + side;
-
-            nextLeft = curRight + this.spaceX;
-
-            if (showedIndexs.indexOf(index) >= 0) {
-                continue;
-            }
-
-            const isOut = (curLeft >= visiableRect.right) || (curRight <= visiableRect.left);
-            const visiable = !isOut;
-            if (visiable) { 
-                const cell = this.insertOneCellAt(content, index);
-                const node = cell.node;
-
-                uk.setXByLeft(node, curLeft, side);
-            }
-
-            if (nextLeft > visiableRect.right) {
-                break; 
-            }
-        }
-    }
-
-    private getIteratorAugs(count: number) {
-        let startIndex = 0;
-        let sign = 1;
-        if (this.isLeftToRight) {
-            startIndex = count - 1;
-            sign = -1;
-        }
-
-        return [startIndex, sign];
-    }
 }
