@@ -3,7 +3,6 @@ import { EUKTableViewType, EUKVerticalDirection, EUKHorizontalDirection } from "
 import { IUKLayout } from "./layout/IUKLayout";
 import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
 import { UKLayoutVertical } from "./layout/UKLayoutVertical";
-import { UKLayoutVerticalB2T } from "./layout/UKLayoutVerticalB2T";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -144,6 +143,10 @@ export default class UKTableView extends cc.Component {
 
     onLoad() {
         this.regsiteFromContent();
+        this.scrollView.content.on(cc.Node.EventType.POSITION_CHANGED, () => {
+            const y = this.scrollView.content.y;
+            cc.log('y: ', y);
+        });
     }
 
     onDestroy() {
@@ -385,11 +388,7 @@ export default class UKTableView extends cc.Component {
 
         let layout: IUKLayout;
         if (this.type == EUKTableViewType.VERTICAL) {
-            if (this.verticalDirection == EUKVerticalDirection.TOP_TO_BOTTOM) {
-                layout = new UKLayoutVertical();
-            } else {
-                layout = new UKLayoutVerticalB2T();
-            }
+            layout = new UKLayoutVertical(this.verticalDirection);
         } else {
             layout = new UKLayoutHorizontal(this.horizontalDirection == EUKHorizontalDirection.LEFT_TO_RIGHT);
         }
