@@ -9,7 +9,7 @@ interface ILayoutPositionCal {
     setPos(node: cc.Node, pos: number, side: number): void;
 
     getStartOffset(): number;
-    getNextOffset(curOffset: number, side: number): number;
+    getNextOffset(curOffset: number, index: number, side: number): number;
     getOffset(content: cc.Node, curOffset: number): number;
 
     /** 是否超出可视边界 */
@@ -23,7 +23,7 @@ export class UKLayoutVertical extends UKLayout {
         setPos: (node, pos, side) => uk.setYByTop(node, pos, side),
 
         getStartOffset: () => this.paddingTop,
-        getNextOffset: (curOffset, side) => curOffset + side + this.spaceY,
+        getNextOffset: (curOffset, index, side) => curOffset + side + this.spaceY,
         getOffset: (_, curOffset) => curOffset,
 
         isOver: (curPos, visiableRect) => curPos < visiableRect.bottom,
@@ -35,7 +35,7 @@ export class UKLayoutVertical extends UKLayout {
         setPos: (node, pos, side) => uk.setYByBottom(node, pos, side),
 
         getStartOffset: () => this.paddingBottom,
-        getNextOffset: (curOffset, side) => curOffset + side + this.spaceY,
+        getNextOffset: (curOffset, index, side) => curOffset + side + (index > 0 ? this.spaceY : 0),
         getOffset: (content, curOffset) => content.height - curOffset,
 
         isOver: (curPos, visiableRect) => curPos > visiableRect.top,
@@ -124,14 +124,13 @@ export class UKLayoutVertical extends UKLayout {
         const cal = this.posCal;
 
         let offset = cal.getStartOffset();
-        let toIndex = eleIndex;
 
-        for (let index = 0, times = 0; times < eleCount; ++times, index++) {
-            if (index == toIndex) {
+        for (let index = 0; index < eleCount; index++) {
+            if (index == eleIndex) {
                 break;
             }
 
-            offset = cal.getNextOffset(offset, this.sizeAtIndex(index));
+            offset = cal.getNextOffset(offset, index, this.sizeAtIndex(index));
         }
 
         offset = cal.getOffset(scroll.content, offset);
