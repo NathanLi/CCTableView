@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "2df222f2-9c05-4879-92d7-06bb2a21233c",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "chatArrowR": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "c4b42a66-2d93-4830-aa34-ac08a57b6ef3",
+      "importer": "sprite-frame",
       "rawTextureUuid": "2df222f2-9c05-4879-92d7-06bb2a21233c",
       "trimType": "auto",
       "trimThreshold": 1,
