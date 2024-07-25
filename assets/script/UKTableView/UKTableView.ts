@@ -143,10 +143,10 @@ export default class UKTableView extends cc.Component {
 
     onLoad() {
         this.regsiteFromContent();
-        this.scrollView.content.on(cc.Node.EventType.POSITION_CHANGED, () => {
-            const y = this.scrollView.content.y;
-            cc.log('y: ', y);
-        });
+        // this.scrollView.content.on(cc.Node.EventType.POSITION_CHANGED, () => {
+        //     const y = this.scrollView.content.y;
+        //     cc.log('y: ', y);
+        // });
     }
 
     onDestroy() {
