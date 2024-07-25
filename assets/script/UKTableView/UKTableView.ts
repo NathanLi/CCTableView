@@ -1,8 +1,7 @@
 import UKTableViewCell, { ICellSizeChangedInfo } from "./cell/UKTableViewCell";
 import { EUKTableViewType, EUKVerticalDirection, EUKHorizontalDirection } from "./EUKTableViewType";
 import { IUKLayout } from "./layout/IUKLayout";
-import { UKLayoutHorizontal } from "./layout/UKLayoutHorizontal";
-import { UKLayoutVertical } from "./layout/UKLayoutVertical";
+import { UKLayout } from "./layout/UKLayout";
 import { UKTableViewDataSrouce } from "./UKTableViewDataSource";
 import { UKTableViewDelegate } from "./UKTableViewDelegate";
 
@@ -385,13 +384,7 @@ export default class UKTableView extends cc.Component {
     }
 
     private createLayout() {
-
-        let layout: IUKLayout;
-        if (this.type == EUKTableViewType.VERTICAL) {
-            layout = new UKLayoutVertical(this.verticalDirection);
-        } else {
-            layout = new UKLayoutHorizontal(this.horizontalDirection == EUKHorizontalDirection.LEFT_TO_RIGHT);
-        }
+        let layout: IUKLayout = new UKLayout(this.type, this.verticalDirection, this.horizontalDirection);
 
         layout.paddingTop = this.paddingTop;
         layout.paddingBottom = this.paddingBottom;
