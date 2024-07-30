@@ -150,7 +150,7 @@ export default class UKTableView extends cc.Component {
 
     onDestroy() {
         for (let key in this._cacheCell) {
-            this._cacheCell[key].forEach(v => v.destroy());
+            this._cacheCell[key].forEach(v => v.node.destroy());
         }
 
         for (let key in this._registedCell) {
