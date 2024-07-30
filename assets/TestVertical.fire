@@ -2662,6 +2662,7 @@
     "spaceX": 0,
     "verticalDirection": 0,
     "horizontalDirection": 0,
+    "enableScrollAlways": true,
     "_id": "e7ZDr6MuBKO7DyAL6aEwWM"
   },
   {

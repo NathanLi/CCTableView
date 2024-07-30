@@ -1379,7 +1379,7 @@
       "__id__": 22
     },
     "type": 0,
-    "paddingTop": 0,
+    "paddingTop": 21.8,
     "paddingBottom": 0,
     "paddingLeft": 0,
     "paddingRight": 0,
@@ -1387,6 +1387,7 @@
     "spaceX": 0,
     "verticalDirection": 0,
     "horizontalDirection": 0,
+    "enableScrollAlways": false,
     "_id": "51xKKLU6dHVYYXbYireZUD"
   },
   {

@@ -2047,7 +2047,7 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": 1,
       "y": 1
     },
     "_trs": {
@@ -2116,14 +2116,14 @@
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": 1,
       "y": 0.5
     },
     "_trs": {
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -320,
+        320,
         0,
         0,
         0,
@@ -2632,6 +2632,7 @@
     "spaceX": 10,
     "verticalDirection": 0,
     "horizontalDirection": 1,
+    "enableScrollAlways": false,
     "_id": "a1wF0+bC5JGp+7bDMs2kfC"
   },
   {
