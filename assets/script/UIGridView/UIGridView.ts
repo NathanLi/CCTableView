@@ -33,10 +33,12 @@ export enum EUIHorizontalLayout {
 
 const DEFAULT_KEY = 'default';
 
-
-
-
-
+/**
+ * 简易版 Grid 布局View  
+ * 
+ * 1、不支持 瀑布流布局
+ * 
+ */
 @ccclass
 @menu('UIKit/UIGridView/UIGridView')
 export default class UIGridView extends cc.Component {
@@ -141,7 +143,7 @@ export default class UIGridView extends cc.Component {
 
         this._layout.recycleAllCells();
         this._layout.setupContentSize(count);
-
+        this._layout.doLayout(count);
     }
 
     registe(source: cc.Node | cc.Prefab, identifier?: string): void {
